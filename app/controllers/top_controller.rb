@@ -10,14 +10,19 @@ class TopController < ApplicationController
 
   # loginアクション
   def login
-    uid = params[:uid]
-    pass = params[:pass]
+    user = User.find_by(uid: params[:uid])
 
-    if uid == "kindai" && pass == "sanriko"
-      session[:login_uid] = uid
+    if user && BCrypt::Password.new(user.pass) == params[:pass]
+      session[:login_uid] = user.uid
       redirect_to action: :main
     else
       render "error", status: 422
     end
+  end
+
+  # logoutアクション
+  def logout
+    session.delete(:login_uid)
+    redirect_to top_login_path, notice: "ログアウトしました"
   end
 end
